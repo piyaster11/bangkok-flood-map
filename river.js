@@ -95,10 +95,19 @@ function parseBkk(s){ // 'YYYY-MM-DD HH:mm' Bangkok → epoch ms
   return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5])-7*3600e3;
 }
 function bkkDate(ms){return new Date(ms+7*3600e3).toISOString().slice(0,10);}
-function fetchJSON(url,ms){
+function fetchJSON(url,ms,tries){
+  tries=tries==null?2:tries;
   var ac=new AbortController(), t=setTimeout(function(){ac.abort();},ms||50000);
-  return fetch(url,{signal:ac.signal,cache:'no-store'}).then(function(r){clearTimeout(t);if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).catch(function(e){clearTimeout(t);throw e;});
+  return fetch(url,{signal:ac.signal,cache:'no-store'}).then(function(r){
+    clearTimeout(t);
+    if(r.status===429&&tries>0){ // rate limited: back off and retry
+      return new Promise(function(res){setTimeout(res,(3-tries)*3000+3000);}).then(function(){return fetchJSON(url,ms,tries-1);});
+    }
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  }).catch(function(e){clearTimeout(t);throw e;});
 }
+function pool(tasks,n){var i=0;function next(){if(i>=tasks.length)return Promise.resolve();var t=tasks[i++];return t().then(next);}var w=[];for(var k=0;k<n;k++)w.push(next());return Promise.all(w);}
 function hav(a,b,c,d){var R=6371,r=Math.PI/180,dl=(c-a)*r,dn=(d-b)*r,x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a*r)*Math.cos(c*r)*Math.sin(dn/2)*Math.sin(dn/2);return 2*R*Math.asin(Math.sqrt(x));}
 function worst(a,b){return RANK[a]>=RANK[b]?a:b;}
 function arrow(t){return t==='rising'?'▲':t==='falling'?'▼':t==='levelled'?'▬':t==='steady'?'▬':'';}
@@ -214,9 +223,9 @@ function loadHist(){
   ST.forEach(function(s){
     var rec=S.wl[s.c];if(!rec||!rec.station)return;tot++;
     var url=API+'waterlevel_graph?station_id='+rec.station.id+'&start_date='+d0+'&end_date='+d1+'&station_type=tele_waterlevel';
-    jobs.push(fetchJSON(url,40000).then(function(j){var ser=buildSeries(j);if(ser){S.hist[s.c]={ser:ser,qmax:num(j.data.qmax),bank:num(j.data.min_bank)};ok++;}}).catch(function(){}));
+    jobs.push(function(){return fetchJSON(url,40000).then(function(j){var ser=buildSeries(j);if(ser){S.hist[s.c]={ser:ser,qmax:num(j.data.qmax),bank:num(j.data.min_bank)};ok++;}}).catch(function(){});});
   });
-  return Promise.all(jobs).then(function(){
+  return pool(jobs,5).then(function(){
     setFeed('hist',ok===tot?'ok':ok?'part':'fail',ok+' of '+tot+' stations with 7-day hourly history · fetched '+dt(Date.now())+' BKK'+(ok<tot?' (others: trend unavailable)':''));
   });
 }
