@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Northern water route · live river &amp; dam status → Bangkok</title>
+<meta name="description" content="Unofficial live status of the Ping, Wang, Yom, Nan and Chao Phraya rivers and the main dams, with colour-coded warning levels and an estimate of how many days flow takes to reach Bangkok. Data: ThaiWater / RID.">
+<meta property="og:title" content="Northern water route · live river &amp; dam status → Bangkok">
+<meta property="og:description" content="Live dam storage, river discharge, bank-full warning colours and an estimated travel time of high water to Bangkok. Unofficial.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
+<link rel="stylesheet" href="river.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap topin">
+    <div>
+      <a class="back" href="./">← Back to Bangkok flood map</a>
+      <h1>Northern water route <span class="th">เส้นทางน้ำเหนือ</span></h1>
+      <div class="sub">Ping · Wang · Yom · Nan → Nakhon Sawan → Chao Phraya → Bangkok · live public data</div>
+    </div>
+    <div class="topr">
+      <div class="live"><span class="dot"></span>LIVE</div>
+      <button id="refreshBtn" class="btn" type="button">Refresh</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="updated" id="updated">Loading feeds…</div>
+
+  <section class="alert">
+    <b>Unofficial monitoring aid – not an official forecast.</b> Follow warnings from RID, HII, TMD, DDPM and BMA (hotline <b>1555</b>, disaster <b>1784</b>, emergency <b>191</b>).
+  </section>
+
+  <section id="summary" class="grid2">
+    <div class="card" id="overall"><h2>Overall basin status</h2><div class="muted">Loading…</div></div>
+    <div class="card" id="crest"><h2>Estimated crest arrival at Bangkok</h2><div class="muted">Loading…</div></div>
+  </section>
+
+  <section class="card" id="outlook"><h2>What this means for Bangkok · next 1–7 days <span class="tag est">rule-based</span></h2><div class="muted">Loading…</div></section>
+
+  <section class="grid2">
+    <div class="card" id="topRivers"><h2>Highest rivers &amp; dams</h2><div class="muted">Loading…</div></div>
+    <div class="card" id="nearest"><h2>Nearest to bank-full</h2><div class="muted">Loading…</div></div>
+  </section>
+
+  <section class="card">
+    <div class="cardhead">
+      <h2>Water route map</h2>
+      <div class="muted small">Simplified schematic, not to scale · tap a point for details</div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="svgwrap"><svg id="map" viewBox="0 0 640 1640" role="img" aria-label="Schematic of the northern rivers, dams and Chao Phraya to the Gulf of Thailand with live status colours"></svg></div>
+  </section>
+
+  <section class="card" id="crestTable"><h2>Crest travel-time table <span class="tag est">ESTIMATE</span></h2><div class="muted">Loading…</div></section>
+
+  <section class="card"><h2>Dams</h2><div id="damTable" class="tablewrap"><div class="muted">Loading…</div></div>
+    <div class="muted small" id="damNote"></div></section>
+
+  <section class="card"><h2>River stations</h2><div id="stTable" class="tablewrap"><div class="muted">Loading…</div></div></section>
+
+  <section class="card"><h2>Tide at the river mouth</h2>
+    <div class="muted">Unavailable – no public machine-readable tide feed for the Chao Phraya mouth was found. High tide slows drainage and raises the lower river (Bangkok, Samut Prakan); check the
+    <a href="https://www.hydro.navy.mi.th/" target="_blank" rel="noopener">Hydrographic Department tide tables</a>.</div></section>
+
+  <section class="card"><h2>Data feeds</h2><div id="feeds" class="feeds"></div>
+    <div class="muted small">Auto-refresh every 10 minutes. A failed feed is shown as unavailable – no cached, mock or invented values are used.</div></section>
+
+  <section class="card" id="method"><h2>Method, assumptions &amp; sources</h2>
+    <div class="small" id="methodBody"></div></section>
+
+  <footer class="foot small muted">
+    Data: <a href="https://www.thaiwater.net" target="_blank" rel="noopener">ThaiWater / HII (สสน.)</a> (stations from RID, TMD, BMA; dam daily reports) ·
+    Official: <a href="https://water.rid.go.th" target="_blank" rel="noopener">RID</a> ·
+    <a href="https://www.tmd.go.th" target="_blank" rel="noopener">TMD</a> ·
+    <a href="https://weather.bangkok.go.th" target="_blank" rel="noopener">BMA</a> ·
+    <a href="https://www.disaster.go.th" target="_blank" rel="noopener">DDPM</a>.
+    Schematic drawn for this page; not affiliated with any agency. Readings can be delayed, missing or wrong.
+    <br><a href="./">← Bangkok flood map</a>
+  </footer>
+</main>
+
+<div id="detail" class="detail hidden" role="dialog" aria-live="polite"></div>
+<script src="river.js"></script>
+</body>
+</html>
